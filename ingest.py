@@ -2,7 +2,6 @@ import argparse
 import config
 from PIL import Image
 import cv2
-from enum import Enum
 import shutil
 
 
@@ -34,22 +33,6 @@ def crop(image):
         cropped = image[int(r[1]) : int(r[1] + r[3]), int(r[0]) : int(r[0] + r[2])]
     cv2.destroyAllWindows()
     return cropped
-
-
-class LayoutType(Enum):
-    CAPTION = 1
-    TEXT_BOXES = 2
-
-
-def select_text_layout_type_for_image():
-    while True:
-        response = input("caption (c) or text boxes (b)? ").lower()
-        if response.startswith("c"):
-            return LayoutType.CAPTION
-        elif response.startswith("b"):
-            return LayoutType.TEXT_BOXES
-        else:
-            print("invalid response")
 
 
 def read_four_points(image) -> config.SkewedRectangle:
@@ -141,8 +124,9 @@ def read_all_text_boxes(image) -> list[config.TextBox]:
         response = input("Add a text box? (y/n) ").lower()
         if response.startswith("y"):
             font = read_font()
+            tag = input("Tag: ")
             bounds = read_bounds(image)
-            text_boxes.append(config.TextBox(bounds=bounds, font=font))
+            text_boxes.append(config.TextBox(bounds=bounds, font=font, tag=tag))
         elif response.startswith("n"):
             return text_boxes
         else:
@@ -165,29 +149,22 @@ def main():
     if args.in_config is None:
         meme_conf = config.Config(memes=[])
     else:
-        meme_conf = config.load(args.config)
+        meme_conf = config.load(args.in_config)
 
     description = read_description()
     if not is_video(args.in_template):
         image = cv2.imread(args.in_template)
         image = crop(image)
         cv2.imwrite(args.out_template, image)
-
-        text_layout_type = select_text_layout_type_for_image()
-
-        if text_layout_type == LayoutType.CAPTION:
-            text_layout = config.Caption()
-        else:
-            text_layout = read_all_text_boxes(image)
-
+        textboxes = read_all_text_boxes(image)
     else:
-        text_layout = config.Caption()
+        textboxes = []
         shutil.copyfile(args.in_template, args.out_template)
 
     meme = config.Meme(
         description=description,
         filepath=args.out_template,
-        text_layout=text_layout,
+        textboxes=textboxes,
     )
 
     meme_conf.memes.append(meme)

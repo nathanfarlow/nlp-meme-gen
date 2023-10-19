@@ -8,33 +8,27 @@ import json
 Point = tuple[int, int]
 
 
+# top left, top right, bottom right, bottom left
+SkewedRectangle = tuple[Point, Point, Point, Point]
+
+
 class Font(str, Enum):
     ARIAL = "arial"
     IMPACT = "impact"
-
-
-# top left, top right, bottom right, bottom left
-SkewedRectangle = tuple[Point, Point, Point, Point]
 
 
 @dataclass
 class TextBox:
     bounds: SkewedRectangle
     font: Font
-
-
-class Caption:
-    pass
-
-
-TextLayout = Caption | list[TextBox]
+    tag: str
 
 
 @dataclass
 class Meme:
     description: str
     filepath: str
-    text_layout: TextLayout
+    textboxes: list[TextBox]
 
 
 @dataclass
