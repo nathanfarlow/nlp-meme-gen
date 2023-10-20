@@ -46,3 +46,59 @@ class Segmenter:
             return j["query"]
         except:
             return None
+
+    def get_text(self, meme, sentence):
+        prompt = "".join(
+            [
+                "[INST] You are a meme generator. You extract the caption and other text from ",
+                "a user's description. Assign the output results ",
+                "in the same order as the corresonding tags appear. If it's not clear, then put them ",
+                "in the order they appear in the description. If it's still not clear, and there is only ",
+                "one text, then make it the caption, leaving empty strings where necessary. Your output will ",
+                "be in json format. There should be an equal number of responses to the number of tags. ",
+                "If the specific text is not specified, it should be an empty string. Here are some examples. ",
+                "You should only use these as a reference, and you should always use only the applicable tags.\n\n",
+                'tags: ["butterfly, pigeon", "word, x", "caption"]\n',
+                'description: """is this a x meme which says \'foo bar\' as a caption and the butterfly says \'guh guh butterfly\'"""\n',
+                'response: ["guh guh butterfly", "", "foo bar"]\n\n',
+                'tags: ["first, one", "second, two", "third, three", "caption"]\n',
+                'description: """the pointing spiderman meme with caption "this is my caption lol" and with the spidermen being labeled steve, george, and bob"""\n',
+                'response: ["steve", "george", "bob", "this is my caption lol"]\n\n',
+                'tags: ["bad, boo", "good, yay", "caption"]\n',
+                'description: """drake meme where bad is "dog" and good is cat"""]\n',
+                'response: ["dog", "cat", ""]\n',
+                'tags: ["small brain, dumb", "medium brain", "intermediate brain", "big brain", "caption"]\n',
+                'description: """the expanding brain meme with caption \'when you forget your phone\'"""]\n',
+                'response: ["", "", "", "", "when you forget your phone"]\n',
+                'tags: ["good thing", "caption"]\n',
+                'description: """the good meme with caption \'foo bar\'"""]\n',
+                'response: ["", "foo bar"]\n',
+                "[/INST]\n",
+                'tags: ["%TAGS%"]\n',
+                'description: """%DESCRIPTION%"""\n',
+                'response: ["',
+            ]
+        )
+        tags = [box.tag for box in meme.textboxes]
+        prompt = prompt.replace("%TAGS%", '", "'.join(tags))
+        prompt = prompt.replace("%DESCRIPTION%", sentence)
+
+        output = self.llm(
+            prompt,
+            max_tokens=5000,
+            stop="]",
+            temperature=0.2,
+        )
+
+        output = '{"text": ["' + output["choices"][0]["text"] + "]}"
+        try:
+            j = json.loads(output)
+            return j["text"]
+        except:
+            return None
+
+
+segmenter = Segmenter(
+    model_path="/home/nathan/Downloads/codellama-13b-instruct.Q5_K_S.gguf",
+    n_gpu_layers=40,
+)
