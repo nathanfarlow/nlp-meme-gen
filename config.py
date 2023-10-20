@@ -2,6 +2,7 @@ import dataclasses
 from enum import Enum
 from dataclasses import dataclass
 import json
+from dataclasses_json import dataclass_json
 
 
 # x, y
@@ -31,6 +32,7 @@ class Meme:
     textboxes: list[TextBox]
 
 
+@dataclass_json
 @dataclass
 class Config:
     memes: list[Meme]
@@ -45,4 +47,4 @@ class Config:
 
 def load(filepath):
     with open(filepath, "r") as f:
-        return Config(**json.load(f))
+        return Config.from_json(f.read())
