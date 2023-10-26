@@ -3,23 +3,7 @@ import config
 from PIL import Image
 import cv2
 import shutil
-
-
-def is_video(filename):
-    ext = filename.split(".")[-1]
-    return ext in {
-        "mp4",
-        "gif",
-        "webm",
-        "mov",
-        "avi",
-        "mkv",
-        "flv",
-        "wmv",
-        "m4v",
-        "m4p",
-        "m4b",
-    }
+from util import is_video
 
 
 def crop(image):

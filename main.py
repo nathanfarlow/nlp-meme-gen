@@ -1,6 +1,8 @@
 from search import Search
 from segment import Segmenter
 import config
+import render
+import os
 
 config = config.load("test/config.json")
 
@@ -9,14 +11,22 @@ s = Segmenter(
     n_gpu_layers=43,
 )
 search = Search(config)
+renderer = render.Renderer(
+    "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
+    "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
+)
 
-query = "expanding brain meme with caption 'bruh'"
+# query = "the expanding brain meme with the tiniest brain as 'bruh bruh guh guh' and the hugest brain as 'gonk gonk' and the top text is 'foo'"
+query = "nerd emoji gif with caption 'um actually'"
 template_query = s.get_template_query(query)
-print(f"{template_query=}")
+print(f'Template query: "{template_query}"')
 if template_query:
     meme = search.search(template_query)
-    print(f"{meme=}")
+    print(f'Meme: "{meme.filepath}"')
     if meme:
         text = s.get_text(meme, query)
-        print(f"Using meme {meme.filepath}")
-        print(f"with textboxes {text=}")
+        print(f'Text: "{text}"')
+        if text:
+            file = renderer.render(meme, text)
+
+            os.system(f'google-chrome "{file}"')

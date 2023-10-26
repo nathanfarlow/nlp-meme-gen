@@ -20,7 +20,7 @@ class Segmenter:
                 "[INST] You are a meme search engine. A user ",
                 "submits a meme description and you output a search query that can be ",
                 "used to google for the specified meme template. Your output will be in ",
-                "json format. Ignore captions and other text. Here are some examples. \n\n",
+                "json format. Do not include string literals like captions. Here are some examples. \n\n",
                 'description: """is this a x meme which says \'foo bar\' as a caption"""\n',
                 'response: {"query": "is this a x"}\n\n',
                 'description: """that one spiderman meme where they are all pointing at each other which says "hey we\'re all the same that\'s crazy""""\n'
@@ -54,6 +54,7 @@ class Segmenter:
             "tags and the user's description. Feel free to leave some tags blank. "
             "Your output will be in json format. There should be an equal number of responses to the number of tags. "
             "In your json response, copy the tag string exactly, so that it can be used for identification. "
+            "Keep escape sequences in the text. "
             "Here are some examples. You should only use these as a reference, and you should always use only the applicable tags.\n\n"
             'description: """is this a x meme which says \'foo bar\' as a caption and the butterfly says \'guh guh butterfly\'"""\n'
             'tags: ["butterfly, pigeon", "word, x", "caption"]\n'
@@ -67,9 +68,9 @@ class Segmenter:
             'description: """the expanding brain meme with caption \'when you forget your phone\'"""]\n'
             'tags: ["small brain, dumb", "medium brain", "intermediate brain", "big brain", "caption"]\n'
             'response: {"small brain, dumb": "", "medium brain": "", "intermediate brain": "", "big brain": "", "caption": "when you forget your phone"}\n\n'
-            'description: """the good meme with good thing \'haha this is such a good meme haha\'"""]\n'
+            'description: """the good meme with good thing \'Alice: haha you\'re funny\\nBob: thanks lol"""]\n'
             'tags: ["caption", good thing"]\n'
-            'response: {"caption": "", good thing": "haha this is such a good meme haha"}\n\n'
+            'response: {"caption": "", good thing": "Alice: haha you\'re funny\\nBob: thanks lol"}\n\n'
             "[/INST]\n"
             'description: """%DESCRIPTION%"""\n'
             'tags: ["%TAGS%"]\n'

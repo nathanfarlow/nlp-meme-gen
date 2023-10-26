@@ -10,13 +10,15 @@ class Search:
 
         def templates():
             for meme in config.memes:
+                print(f"guh", meme.filepath, meme.description)
                 yield (meme.filepath, meme.description)
 
         self.memes_by_filepath = {meme.filepath: meme for meme in config.memes}
 
         self.embeddings = Embeddings(
             method="sentence-transformers",
-            path="sentence-transformers/clip-ViT-B-32",
+            # path="sentence-transformers/clip-ViT-B-32",
+            path="sentence-transformers/nli-mpnet-base-v2",
         )
         self.embeddings.index(templates())
 
