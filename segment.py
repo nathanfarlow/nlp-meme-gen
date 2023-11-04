@@ -20,7 +20,7 @@ class Segmenter:
                 "[INST] You are a meme search engine. A user ",
                 "submits a meme description and you output a search query that can be ",
                 "used to google for the specified meme template. Your output will be in ",
-                "json format. Do not include string literals like captions. Here are some examples. \n\n",
+                "json format. Do not include captions or other textboxes in your consideration. Here are some examples. \n\n",
                 'description: """is this a x meme which says \'foo bar\' as a caption"""\n',
                 'response: {"query": "is this a x"}\n\n',
                 'description: """that one spiderman meme where they are all pointing at each other which says "hey we\'re all the same that\'s crazy""""\n'
@@ -87,7 +87,7 @@ class Segmenter:
             prompt,
             max_tokens=5000,
             stop="}",
-            temperature=0.3,
+            temperature=0.2,
         )
 
         output = '{"' + output["choices"][0]["text"] + "}"

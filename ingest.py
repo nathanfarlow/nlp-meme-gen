@@ -127,6 +127,7 @@ def main():
     parser.add_argument("--out-template", type=str, required=True)
     parser.add_argument("--in-config", type=str, required=False)
     parser.add_argument("--out-config", type=str, required=False)
+    parser.add_argument("--description", type=str, required=False)
 
     args = parser.parse_args()
 
@@ -135,7 +136,9 @@ def main():
     else:
         meme_conf = config.load(args.in_config)
 
-    description = read_description()
+    description = (
+        args.description if args.description is not None else read_description()
+    )
     if not is_video(args.in_template):
         image = cv2.imread(args.in_template)
         image = crop(image)

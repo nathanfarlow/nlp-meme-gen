@@ -26,7 +26,7 @@ def split_line(line, draw, font, box_width, padding):
     return result
 
 
-def text_in_box(text, draw, font, box_width, padding):
+def text_in_box(text, draw, font, box_width, padding, color):
     lines = []
     for line in text.split("\n"):
         lines.extend(split_line(line, draw, font, box_width, padding))
@@ -35,7 +35,7 @@ def text_in_box(text, draw, font, box_width, padding):
 
     height += height % 2
 
-    caption_image = Image.new("RGB", (box_width, height), color="white")
+    caption_image = Image.new("RGBA", (box_width, height), color=color)
     draw = ImageDraw.Draw(caption_image)
 
     draw.multiline_text((padding, 0), "\n".join(lines), font=font, fill="black")
@@ -54,11 +54,9 @@ class Renderer:
         caption_image = Image.new("RGB", (0, 0), color="white")
         draw = ImageDraw.Draw(caption_image)
         padding = draw.textbbox((0, 0), "A", font=font)[1]
-        return text_in_box(text, draw, font, image_width, padding)
+        return text_in_box(text, draw, font, image_width, padding, color="white")
 
     def render_video(self, filepath, caption):
-        if not caption:
-            return filepath
         command = f'ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 "{filepath}"'
         output = os.popen(command).read()
         width, height = map(int, output.split("x"))
@@ -73,6 +71,7 @@ class Renderer:
 
     def render_image(self, meme: config.Meme, textbox_assignments: dict[str, str]):
         image = Image.open(meme.filepath)
+        image = image.convert("RGBA")
         draw = ImageDraw.Draw(image)
         image_width, image_height = image.size
 
@@ -82,7 +81,9 @@ class Renderer:
                 return image
             caption_image = self.make_caption(image_width, image_height, caption)
             combined_image = Image.new(
-                "RGB", (image_width, image_height + caption_image.height), color="white"
+                "RGBA",
+                (image_width, image_height + caption_image.height),
+                color="white",
             )
             combined_image.paste(caption_image, (0, 0))
             combined_image.paste(image, (0, caption_image.height))
@@ -98,14 +99,19 @@ class Renderer:
             top_left, top_right, bottom_right, bottom_left = box.bounds
             box_width = top_right[0] - top_left[0]
             box_height = bottom_left[1] - top_left[1]
-            text_height = box_height // 8
-            font = ImageFont.truetype(self.impact_path, text_height)
-            caption_image = Image.new("RGB", (0, 0), color="white")
+            text_height = box_height // 4
+            font_path = (
+                self.arial_path if box.font == config.Font.ARIAL else self.impact_path
+            )
+            font = ImageFont.truetype(font_path, text_height)
+            caption_image = Image.new("RGBA", (0, 0), color=(0, 0, 0, 0))
             draw = ImageDraw.Draw(caption_image)
             padding = draw.textbbox((0, 0), "A", font=font)[1]
-            caption_image = text_in_box(text, draw, font, box_width, padding)
+            caption_image = text_in_box(
+                text, draw, font, box_width, padding, color=(0, 0, 0, 0)
+            )
 
-            image.paste(caption_image, top_left)
+            image.paste(caption_image, top_left, caption_image)
 
         for box in meme.textboxes:
             draw_textbox(box)
