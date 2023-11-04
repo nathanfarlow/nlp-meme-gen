@@ -16,8 +16,7 @@ renderer = render.Renderer(
     "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
 )
 
-# query = "the expanding brain meme with the tiniest brain as 'bruh bruh guh guh' and the hugest brain as 'gonk gonk' and the top text is 'foo'"
-query = "nerd emoji gif with caption 'um actually'"
+query = "is this a pigeon meme with the caption 'is this a pigeon???'"
 template_query = s.get_template_query(query)
 print(f'Template query: "{template_query}"')
 if template_query:
@@ -29,4 +28,7 @@ if template_query:
         if text:
             file = renderer.render(meme, text)
 
-            os.system(f'google-chrome "{file}"')
+            os.system(f'google-chrome "{file.name}"')
+            import time
+
+            time.sleep(2)
